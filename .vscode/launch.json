@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-tools}",
+            "name": "Debug swift-tools",
+            "program": "${workspaceFolder:swift-tools}/.build/debug/swift-tools",
+            "preLaunchTask": "swift: Build Debug swift-tools"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-tools}",
+            "name": "Release swift-tools",
+            "program": "${workspaceFolder:swift-tools}/.build/release/swift-tools",
+            "preLaunchTask": "swift: Build Release swift-tools"
+        }
+    ]
+}
