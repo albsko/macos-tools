@@ -10,6 +10,13 @@ import ArgumentParser
 @main
 struct swift_tools: ParsableCommand {
     mutating func run() throws {
-        print(NSScreen.screens)
+        let greeter = Greeter()
+        print(greeter.getGreeting())
+    }
+}
+
+struct Greeter {
+    func getGreeting() -> String {
+        return "Hello!"
     }
 }
