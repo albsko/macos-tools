@@ -17,6 +17,24 @@
             "name": "Release swift-tools",
             "program": "${workspaceFolder:swift-tools}/.build/release/swift-tools",
             "preLaunchTask": "swift: Build Release swift-tools"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-tools}",
+            "name": "Debug focus-window",
+            "program": "${workspaceFolder:swift-tools}/.build/debug/focus-window",
+            "preLaunchTask": "swift: Build Debug focus-window"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-tools}",
+            "name": "Release focus-window",
+            "program": "${workspaceFolder:swift-tools}/.build/release/focus-window",
+            "preLaunchTask": "swift: Build Release focus-window"
         }
     ]
 }
