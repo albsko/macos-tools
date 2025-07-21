@@ -42,15 +42,15 @@ func exec() {
     }
 
     let workspace = NSWorkspace.shared
+
     guard let appBundle = Bundle(path: appPath), let bundleIdentifier = appBundle.bundleIdentifier
     else {
-        fatalError("ERROR: couldn't get boundle information from \(appPath)")
+        fatalError("couldn't get boundle information from \(appPath)")
     }
 
-    if let isGhosttyRunning = findRunningApp(
-        workspace: workspace, bundleIdentifier: bundleIdentifier)
-    {
-        print(isGhosttyRunning)
+    let appRunning = findRunningApp(workspace: workspace, bundleIdentifier: bundleIdentifier)
+    if let _ = appRunning {
+        print("ok")
     }
 }
 
