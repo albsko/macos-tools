@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - swift build -c release
+    silent: true
+
+  run:
+    cmds:
+      - swift run
