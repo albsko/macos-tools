@@ -1,11 +1,22 @@
 import AppKit
 import ArgumentParser
+import Cocoa
 import Foundation
 
 @main
-struct focus_window: ParsableCommand {
-    mutating func run() throws {
-        exec()
+@available(macOS 10.15, *)
+struct focus_window: AsyncParsableCommand {
+    mutating func run() async throws {
+        if !AXIsProcessTrusted() {
+            print("Accessibility permissions are not granted.")
+            print(
+                "Please grant permissions in System Settings > Privacy & Security > Accessibility.")
+            focus_window.exit(
+                withError: NSError(
+                    domain: "PermissionsError", code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Accessibility permissions required."]))
+        }
+        await exec()
     }
 }
 
@@ -16,29 +27,12 @@ struct Screen {
     let height: CGFloat
 }
 
-func exec() {
+@available(macOS 10.15, *)
+func exec() async {
     let appPath = "/Applications/Ghostty.app"
 
-    var currentScreen: Screen? = nil
-    let mouseLocation = NSEvent.mouseLocation
-
-    let nsscreens = NSScreen.screens
-    for s in nsscreens {
-        let frame = s.frame
-        currentScreen = Screen(
-            x: frame.origin.x,
-            y: frame.origin.y,
-            width: frame.size.width,
-            height: frame.size.height
-        )
-
-        if frame.contains(mouseLocation) {
-            break
-        }
-    }
-
-    if currentScreen == nil {
-        fatalError("couldn't get any screen info")
+    guard getCurrentScreen() != nil else {
+        fatalError("couldn't find current screen by mouse location")
     }
 
     let workspace = NSWorkspace.shared
@@ -48,14 +42,58 @@ func exec() {
         fatalError("couldn't get boundle information from \(appPath)")
     }
 
-    let appRunning = findRunningApp(workspace: workspace, bundleIdentifier: bundleIdentifier)
-    if let _ = appRunning {
-        print("ok")
+    var runningApp = findRunningApp(workspace: workspace, bundleIdentifier: bundleIdentifier)
+    if runningApp == nil {
+        runningApp = try! await launchApp(workspace: workspace, appBundleURL: appBundle.bundleURL)
     }
+
+    guard let app = runningApp else {
+        fatalError("couldn't get a running instance of the application")
+    }
+
+    app.unhide()
+    app.activate(options: [.activateAllWindows])
+}
+
+func getCurrentScreen() -> Screen? {
+    let mouseLocation = NSEvent.mouseLocation
+    let nsscreens = NSScreen.screens
+    for s in nsscreens {
+        let frame = s.frame
+
+        if frame.contains(mouseLocation) {
+            return Screen(
+                x: frame.origin.x,
+                y: frame.origin.y,
+                width: frame.size.width,
+                height: frame.size.height
+            )
+        }
+    }
+
+    if let mainScreen = NSScreen.main {
+        let frame = mainScreen.frame
+        return Screen(
+            x: frame.origin.x,
+            y: frame.origin.y,
+            width: frame.size.width,
+            height: frame.size.height
+        )
+    }
+
+    return nil
 }
 
 func findRunningApp(workspace: NSWorkspace, bundleIdentifier: String) -> NSRunningApplication? {
     return workspace.runningApplications.first { app in
         app.bundleIdentifier == bundleIdentifier
     }
+}
+
+@available(macOS 10.15, *)
+func launchApp(workspace: NSWorkspace, appBundleURL: URL) async throws -> NSRunningApplication? {
+    let cfg = NSWorkspace.OpenConfiguration()
+
+    let runningApp = try await workspace.openApplication(at: appBundleURL, configuration: cfg)
+    return runningApp
 }
