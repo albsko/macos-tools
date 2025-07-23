@@ -3,6 +3,8 @@ import ArgumentParser
 import Cocoa
 import Foundation
 
+extension String: @retroactive Error {}
+
 @main
 @available(macOS 10.15, *)
 struct focus_window: AsyncParsableCommand {
@@ -52,7 +54,15 @@ func exec() async {
     }
 
     app.unhide()
+    do { try unminimizeAllWindows(for: app) } catch let errorMessage as String {
+        print("err: \(errorMessage)")
+    } catch {
+        print("unexpected err: \(error)")
+    }
     app.activate(options: [.activateAllWindows])
+
+
+
 }
 
 func getCurrentScreen() -> Screen? {
@@ -96,4 +106,41 @@ func launchApp(workspace: NSWorkspace, appBundleURL: URL) async throws -> NSRunn
 
     let runningApp = try await workspace.openApplication(at: appBundleURL, configuration: cfg)
     return runningApp
+}
+
+func unminimizeAllWindows(for app: NSRunningApplication) throws {
+    let pid = app.processIdentifier
+    if pid == 0 {
+        throw "could not get a valid process identifier (PID) for the application"
+    }
+
+    let appElement = AXUIElementCreateApplication(pid)
+
+    var windowList: AnyObject?
+    let result = AXUIElementCopyAttributeValue(
+        appElement, kAXWindowsAttribute as CFString, &windowList)
+
+    if result != .success {
+        throw "accessibility error: could not get the window list. error code: \(result.rawValue)"
+    }
+
+    guard let windows = windowList as? [AXUIElement] else {
+        throw "application was found, but it doesn't appear to have any windows"
+    }
+
+    if windows.isEmpty {
+        return
+    }
+
+    for window in windows {
+        var isMinimized: AnyObject?
+        let getMinimizedResult = AXUIElementCopyAttributeValue(
+            window, kAXMinimizedAttribute as CFString, &isMinimized)
+
+        if getMinimizedResult == .success, let minimized = isMinimized as? NSNumber,
+            minimized.boolValue
+        {
+            AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, kCFBooleanFalse)
+        }
+    }
 }
