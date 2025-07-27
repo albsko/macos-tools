@@ -8,21 +8,19 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0")
     ],
     targets: [
-        // .executableTarget(
-        //     name: "swift-tools",
-        //     dependencies: [
-        //         .product(name: "ArgumentParser", package: "swift-argument-parser")
-        //     ]
-        // ),
         .executableTarget(
-            name: "focus-window",
+            name: "FocusWindow",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
-        // .testTarget(
-        //     name: "swift_toolsTests",
-        //     dependencies: ["swift-tools"]
-        // ),
+        .target(
+            name: "Utils",
+            dependencies: ["CUtils"]
+        ),
+        .target(
+            name: "CUtils",
+            publicHeadersPath: "include"
+        ),
     ]
 )
