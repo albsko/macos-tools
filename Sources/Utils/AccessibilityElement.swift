@@ -1,15 +1,7 @@
-//
-//  AccessibilityElement.swift
-//  Rectangle, Ported from Spectacle, Combined with snippets from ModMove
-//
-//  Created by Ryan Hanson on 6/12/19.
-//  Copyright © 2019 Ryan Hanson. All rights reserved.
-//
-
 import AppKit
 import Foundation
 
-class AccessibilityElement {
+public class AccessibilityElement {
     fileprivate let wrappedElement: AXUIElement
 
     init(_ element: AXUIElement) {
@@ -108,9 +100,6 @@ class AccessibilityElement {
         set {
             guard let newValue = newValue else { return }
             wrappedElement.setValue(.position, newValue)
-            // Logger.log(
-            //     "AX position proposed: \(newValue.debugDescription), result: \(position?.debugDescription ?? "N/A")"
-            // )
         }
     }
 
@@ -418,13 +407,13 @@ extension AccessibilityElement {
 }
 
 extension AccessibilityElement: Equatable {
-    static func == (lhs: AccessibilityElement, rhs: AccessibilityElement) -> Bool {
+    public static func == (lhs: AccessibilityElement, rhs: AccessibilityElement) -> Bool {
         return lhs.wrappedElement == rhs.wrappedElement
     }
 }
 
 extension AccessibilityElement: Hashable {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(wrappedElement)
     }
 }

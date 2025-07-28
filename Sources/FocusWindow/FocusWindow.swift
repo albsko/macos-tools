@@ -1,6 +1,7 @@
 import AppKit
 import ArgumentParser
 import Foundation
+import Utils
 
 extension String: @retroactive Error {}
 
@@ -20,12 +21,13 @@ struct FocusWindow: AsyncParsableCommand {
     }
 }
 
+
 func exec() async {
     let appPath = "/Applications/Ghostty.app"
-
-    guard let screen = getVisibleScreenFrame() else {
-        fatalError("couldn't find current screen by mouse location")
-    }
+    
+//    guard let screen = getVisibleScreenFrame() else {
+//        fatalError("couldn't find current screen by mouse location")
+//    }
 
     let workspace = NSWorkspace.shared
 
@@ -50,7 +52,6 @@ func findRunningApp(workspace: NSWorkspace, bundleIdentifier: String) -> NSRunni
     }
 }
 
-@available(macOS 15, *)
 func launchApp(workspace: NSWorkspace, appBundleURL: URL) async throws -> NSRunningApplication? {
     let cfg = NSWorkspace.OpenConfiguration()
 
