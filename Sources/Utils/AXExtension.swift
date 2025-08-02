@@ -1,4 +1,4 @@
-@preconcurrency import AppKit
+import AppKit
 import CUtils
 import Foundation
 
@@ -26,7 +26,7 @@ extension AXValue {
 }
 
 extension AXUIElement {
-    public static let systemWide = AXUIElementCreateSystemWide()
+    @MainActor public static let systemWide = AXUIElementCreateSystemWide()
 
     public func isValueSettable(_ attribute: NSAccessibility.Attribute) -> Bool? {
         var isSettable = DarwinBoolean(false)
