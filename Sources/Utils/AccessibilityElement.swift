@@ -333,15 +333,6 @@ extension AccessibilityElement {
     @MainActor public static func getWindowElementUnderCursor() -> AccessibilityElement? {
         let position = NSEvent.mouseLocation.screenFlipped
 
-        let systemWideFirst = Defaults.systemWideMouseDown.userEnabled
-
-        if systemWideFirst,
-            let element = AccessibilityElement(position),
-            let windowElement = element.windowElement
-        {
-            return windowElement
-        }
-
         if let info = getWindowInfo(position) {
             if let windowElements = AccessibilityElement(info.pid).windowElements {
                 if let windowElement = (windowElements.first { $0.windowId == info.id }) {
@@ -353,20 +344,12 @@ extension AccessibilityElement {
             }
         }
 
-        if !systemWideFirst,
-            let element = AccessibilityElement(position),
+        if let element = AccessibilityElement(position),
             let windowElement = element.windowElement
         {
-
-            // if Logger.logging, let pid = windowElement.pid {
-            //     let appName = NSRunningApplication(processIdentifier: pid)?.localizedName ?? ""
-            //     Logger.log("Window under cursor fallback matched: \(appName)")
-            // }
             return windowElement
         }
-        // Logger.log(
-        //     "Unable to obtain the accessibility element with the specified attribute at mouse location"
-        // )
+
         return nil
     }
 
