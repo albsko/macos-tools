@@ -4,18 +4,18 @@
             "type": "swift",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:MacOSTools}",
+            "cwd": "${workspaceFolder:macos-tools}",
             "name": "Debug focus-window",
-            "program": "${workspaceFolder:MacOSTools}/.build/debug/focus-window",
+            "program": "${workspaceFolder:macos-tools}/.build/debug/focus-window",
             "preLaunchTask": "swift: Build Debug focus-window"
         },
         {
             "type": "swift",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:MacOSTools}",
+            "cwd": "${workspaceFolder:macos-tools}",
             "name": "Release focus-window",
-            "program": "${workspaceFolder:MacOSTools}/.build/release/focus-window",
+            "program": "${workspaceFolder:macos-tools}/.build/release/focus-window",
             "preLaunchTask": "swift: Build Release focus-window"
         }
     ]

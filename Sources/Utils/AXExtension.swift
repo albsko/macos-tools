@@ -1,22 +1,15 @@
-//
-//  AXExtension.swift
-//  Rectangle
-//
-//  Copyright © 2022 Ryan Hanson. All rights reserved.
-//
-
-import AppKit
+@preconcurrency import AppKit
 import CUtils
 import Foundation
 
 extension NSAccessibility.Attribute {
-    static let enhancedUserInterface = NSAccessibility.Attribute(
+    public static let enhancedUserInterface = NSAccessibility.Attribute(
         rawValue: "AXEnhancedUserInterface")
-    static let windowIds = NSAccessibility.Attribute(rawValue: "AXWindowsIDs")
+    public static let windowIds = NSAccessibility.Attribute(rawValue: "AXWindowsIDs")
 }
 
 extension AXValue {
-    func toValue<T>() -> T? {
+    public func toValue<T>() -> T? {
         let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
         let success = AXValueGetValue(self, AXValueGetType(self), pointer)
         let value = pointer.pointee
@@ -24,7 +17,7 @@ extension AXValue {
         return success ? value : nil
     }
 
-    static func from<T>(value: T, type: AXValueType) -> AXValue? {
+    public static func from<T>(value: T, type: AXValueType) -> AXValue? {
         var value = value
         return withUnsafePointer(to: &value) { valuePointer in
             AXValueCreate(type, valuePointer)
@@ -33,9 +26,9 @@ extension AXValue {
 }
 
 extension AXUIElement {
-    nonisolated(unsafe) static let systemWide = AXUIElementCreateSystemWide()
+    public static let systemWide = AXUIElementCreateSystemWide()
 
-    func isValueSettable(_ attribute: NSAccessibility.Attribute) -> Bool? {
+    public func isValueSettable(_ attribute: NSAccessibility.Attribute) -> Bool? {
         var isSettable = DarwinBoolean(false)
         let result = AXUIElementIsAttributeSettable(
             self, attribute.rawValue as CFString, &isSettable)
@@ -43,14 +36,14 @@ extension AXUIElement {
         return isSettable.boolValue
     }
 
-    func getValue(_ attribute: NSAccessibility.Attribute) -> AnyObject? {
+    public func getValue(_ attribute: NSAccessibility.Attribute) -> AnyObject? {
         var value: AnyObject?
         let result = AXUIElementCopyAttributeValue(self, attribute.rawValue as CFString, &value)
         guard result == .success else { return nil }
         return value
     }
 
-    func getWrappedValue<T>(_ attribute: NSAccessibility.Attribute) -> T? {
+    public func getWrappedValue<T>(_ attribute: NSAccessibility.Attribute) -> T? {
         guard let value = getValue(attribute), CFGetTypeID(value) == AXValueGetTypeID() else {
             return nil
         }
@@ -61,7 +54,7 @@ extension AXUIElement {
         AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value)
     }
 
-    func setValue(_ attribute: NSAccessibility.Attribute, _ value: Bool) {
+    public func setValue(_ attribute: NSAccessibility.Attribute, _ value: Bool) {
         setValue(attribute, value as CFBoolean)
     }
 
@@ -72,15 +65,15 @@ extension AXUIElement {
         setValue(attribute, value)
     }
 
-    func setValue(_ attribute: NSAccessibility.Attribute, _ value: CGPoint) {
+    public func setValue(_ attribute: NSAccessibility.Attribute, _ value: CGPoint) {
         setWrappedValue(attribute, value, .cgPoint)
     }
 
-    func setValue(_ attribute: NSAccessibility.Attribute, _ value: CGSize) {
+    public func setValue(_ attribute: NSAccessibility.Attribute, _ value: CGSize) {
         setWrappedValue(attribute, value, .cgSize)
     }
 
-    func getElementAtPosition(_ position: CGPoint) -> AXUIElement? {
+    public func getElementAtPosition(_ position: CGPoint) -> AXUIElement? {
         var element: AXUIElement?
         let result = AXUIElementCopyElementAtPosition(
             self, Float(position.x), Float(position.y), &element)
@@ -88,14 +81,14 @@ extension AXUIElement {
         return element
     }
 
-    func getPid() -> pid_t? {
+    public func getPid() -> pid_t? {
         var pid = pid_t(0)
         let result = AXUIElementGetPid(self, &pid)
         guard result == .success else { return nil }
         return pid
     }
 
-    func getWindowId() -> CGWindowID? {
+    public func getWindowId() -> CGWindowID? {
         var windowId = CGWindowID(0)
         let result = _AXUIElementGetWindow(self, &windowId)
         guard result == .success else { return nil }

@@ -1,10 +1,3 @@
-//
-//  TimeoutCache.swift
-//  Rectangle
-//
-//  Copyright © 2022 Ryan Hanson. All rights reserved.
-//
-
 import Foundation
 
 class TimeoutCache<Key: Hashable, Value> {

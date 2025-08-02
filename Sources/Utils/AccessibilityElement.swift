@@ -2,17 +2,17 @@ import AppKit
 import Foundation
 
 public class AccessibilityElement {
-    fileprivate let wrappedElement: AXUIElement
+    public let wrappedElement: AXUIElement
 
-    init(_ element: AXUIElement) {
+    public init(_ element: AXUIElement) {
         wrappedElement = element
     }
 
-    convenience init(_ pid: pid_t) {
+    public convenience init(_ pid: pid_t) {
         self.init(AXUIElementCreateApplication(pid))
     }
 
-    convenience init?(_ bundleIdentifier: String) {
+    public convenience init?(_ bundleIdentifier: String) {
         guard
             let app =
                 (NSWorkspace.shared.runningApplications.first {
@@ -22,7 +22,7 @@ public class AccessibilityElement {
         self.init(app.processIdentifier)
     }
 
-    convenience init?(_ position: CGPoint) {
+    public convenience init?(_ position: CGPoint) {
         guard let element = AXUIElement.systemWide.getElementAtPosition(position) else {
             return nil
         }
@@ -53,32 +53,32 @@ public class AccessibilityElement {
         return role == .application
     }
 
-    var isWindow: Bool? {
+    public var isWindow: Bool? {
         guard let role = role else { return nil }
         return role == .window
     }
 
-    var isSheet: Bool? {
+    public var isSheet: Bool? {
         guard let role = role else { return nil }
         return role == .sheet
     }
 
-    var isToolbar: Bool? {
+    public var isToolbar: Bool? {
         guard let role = role else { return nil }
         return role == .toolbar
     }
 
-    var isGroup: Bool? {
+    public var isGroup: Bool? {
         guard let role = role else { return nil }
         return role == .group
     }
 
-    var isTabGroup: Bool? {
+    public var isTabGroup: Bool? {
         guard let role = role else { return nil }
         return role == .tabGroup
     }
 
-    var isStaticText: Bool? {
+    public var isStaticText: Bool? {
         guard let role = role else { return nil }
         return role == .staticText
     }
@@ -88,7 +88,7 @@ public class AccessibilityElement {
         return NSAccessibility.Subrole(rawValue: value)
     }
 
-    var isSystemDialog: Bool? {
+    public var isSystemDialog: Bool? {
         guard let subrole = subrole else { return nil }
         return subrole == .systemDialog
     }
@@ -103,7 +103,7 @@ public class AccessibilityElement {
         }
     }
 
-    func isResizable() -> Bool {
+    public func isResizable() -> Bool {
         if let isResizable = wrappedElement.isValueSettable(.size) {
             return isResizable
         }
@@ -111,7 +111,7 @@ public class AccessibilityElement {
         return true
     }
 
-    var size: CGSize? {
+    public var size: CGSize? {
         get {
             wrappedElement.getWrappedValue(.size)
         }
@@ -124,7 +124,7 @@ public class AccessibilityElement {
         }
     }
 
-    var frame: CGRect {
+    public var frame: CGRect {
         guard let position = position, let size = size else { return .null }
         return .init(origin: position, size: size)
     }
@@ -132,7 +132,7 @@ public class AccessibilityElement {
     /// The Accessebility API only allows size & position adjustments individually.
     /// To handle moving to different displays, we have to adjust the size then the position, then the size again since macOS will enforce sizes that fit on the current display.
     /// When windows take a long time to adjust size & position, there is some visual stutter with doing each of these actions. The stutter can be slightly reduced by removing the initial size adjustment, which can make unsnap restore appear smoother.
-    func setFrame(_ frame: CGRect, adjustSizeFirst: Bool = true) {
+    public func setFrame(_ frame: CGRect, adjustSizeFirst: Bool = true) {
         let appElement = applicationElement
         var enhancedUI: Bool? = nil
 
@@ -162,22 +162,22 @@ public class AccessibilityElement {
         getElementsValue(.children)
     }
 
-    func getChildElement(_ role: NSAccessibility.Role) -> AccessibilityElement? {
+    public func getChildElement(_ role: NSAccessibility.Role) -> AccessibilityElement? {
         return childElements?.first { $0.role == role }
     }
 
-    func getChildElements(_ role: NSAccessibility.Role) -> [AccessibilityElement]? {
+    public func getChildElements(_ role: NSAccessibility.Role) -> [AccessibilityElement]? {
         guard let elements = (childElements?.filter { $0.role == role }), elements.count > 0 else {
             return nil
         }
         return elements
     }
 
-    func getChildElement(_ subrole: NSAccessibility.Subrole) -> AccessibilityElement? {
+    public func getChildElement(_ subrole: NSAccessibility.Subrole) -> AccessibilityElement? {
         return childElements?.first { $0.subrole == subrole }
     }
 
-    func getChildElements(_ subrole: NSAccessibility.Subrole) -> [AccessibilityElement]? {
+    public func getChildElements(_ subrole: NSAccessibility.Subrole) -> [AccessibilityElement]? {
         guard let elements = (childElements?.filter { $0.subrole == subrole }), elements.count > 0
         else {
             return nil
@@ -185,7 +185,7 @@ public class AccessibilityElement {
         return elements
     }
 
-    func getSelfOrChildElementRecursively(_ position: CGPoint) -> AccessibilityElement? {
+    public func getSelfOrChildElementRecursively(_ position: CGPoint) -> AccessibilityElement? {
         func getChildElement() -> AccessibilityElement? {
             return element.childElements?
                 .map { (element: $0, frame: $0.frame) }
@@ -201,11 +201,11 @@ public class AccessibilityElement {
         return element
     }
 
-    var windowId: CGWindowID? {
+    public var windowId: CGWindowID? {
         wrappedElement.getWindowId()
     }
 
-    func getWindowId() -> CGWindowID? {
+    @MainActor public func getWindowId() -> CGWindowID? {
         if let windowId = windowId {
             return windowId
         }
@@ -216,15 +216,14 @@ public class AccessibilityElement {
         {
             return info.id
         }
-        // Logger.log("Unable to obtain window id")
         return nil
     }
 
-    var pid: pid_t? {
+    public var pid: pid_t? {
         wrappedElement.getPid()
     }
 
-    var windowElement: AccessibilityElement? {
+    public var windowElement: AccessibilityElement? {
         if isWindow == true { return self }
         return getElementValue(.window)
     }
@@ -239,18 +238,18 @@ public class AccessibilityElement {
         }
     }
 
-    var isMinimized: Bool? {
+    public var isMinimized: Bool? {
         windowElement?.wrappedElement.getValue(.minimized) as? Bool
     }
 
-    var isFullScreen: Bool? {
+    public var isFullScreen: Bool? {
         guard let subrole = windowElement?.getElementValue(.fullScreenButton)?.subrole else {
             return nil
         }
         return subrole == .zoomButton
     }
 
-    var titleBarFrame: CGRect? {
+    public var titleBarFrame: CGRect? {
         guard
             let windowElement,
             case let windowFrame = windowElement.frame,
@@ -276,15 +275,15 @@ public class AccessibilityElement {
         applicationElement?.getElementValue(.focusedWindow)
     }
 
-    var windowElements: [AccessibilityElement]? {
+    public var windowElements: [AccessibilityElement]? {
         applicationElement?.getElementsValue(.windows)
     }
 
-    var isHidden: Bool? {
+    public var isHidden: Bool? {
         applicationElement?.wrappedElement.getValue(.hidden) as? Bool
     }
 
-    var enhancedUserInterface: Bool? {
+    public var enhancedUserInterface: Bool? {
         get {
             applicationElement?.wrappedElement.getValue(.enhancedUserInterface) as? Bool
         }
@@ -294,12 +293,11 @@ public class AccessibilityElement {
         }
     }
 
-    // Only for Stage Manager
-    var windowIds: [CGWindowID]? {
+    public var windowIds: [CGWindowID]? {
         wrappedElement.getValue(.windowIds) as? [CGWindowID]
     }
 
-    func bringToFront(force: Bool = false) {
+    public func bringToFront(force: Bool = false) {
         if isMainWindow != true {
             isMainWindow = true
         }
@@ -312,12 +310,12 @@ public class AccessibilityElement {
 }
 
 extension AccessibilityElement {
-    static func getFrontApplicationElement() -> AccessibilityElement? {
+    public static func getFrontApplicationElement() -> AccessibilityElement? {
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
         return AccessibilityElement(app.processIdentifier)
     }
 
-    static func getFrontWindowElement() -> AccessibilityElement? {
+    public static func getFrontWindowElement() -> AccessibilityElement? {
         guard let appElement = getFrontApplicationElement() else {
             // Logger.log("Failed to find the application that currently has focus.")
             return nil
@@ -328,11 +326,10 @@ extension AccessibilityElement {
         if let firstWindowElement = appElement.windowElements?.first {
             return firstWindowElement
         }
-        // Logger.log("Failed to find frontmost window.")
         return nil
     }
 
-    private static func getWindowInfo(_ location: CGPoint) -> WindowInfo? {
+    @MainActor private static func getWindowInfo(_ location: CGPoint) -> WindowInfo? {
         WindowUtil.getWindowList().first(where: { windowInfo in
             windowInfo.level < 23  // 23 is the level of the Notification Center
                 && !["Dock", "WindowManager"].contains(windowInfo.processName)
@@ -340,14 +337,10 @@ extension AccessibilityElement {
         })
     }
 
-    static func getWindowElementUnderCursor() -> AccessibilityElement? {
+    @MainActor public static func getWindowElementUnderCursor() -> AccessibilityElement? {
         let position = NSEvent.mouseLocation.screenFlipped
 
         let systemWideFirst = Defaults.systemWideMouseDown.userEnabled
-        // if Defaults.systemWideMouseDown.notSet, let frontAppId = ApplicationToggle.frontAppId {
-        //     systemWideFirst =
-        //         Defaults.systemWideMouseDownApps.typedValue?.contains(frontAppId) == true
-        // }
 
         if systemWideFirst,
             let element = AccessibilityElement(position),
@@ -357,16 +350,6 @@ extension AccessibilityElement {
         }
 
         if let info = getWindowInfo(position) {
-            if !Defaults.dragFromStage.userDisabled {
-                if StageUtil.stageCapable && StageUtil.stageEnabled,
-                    let group = StageUtil.getStageStripWindowGroup(info.id),
-                    let windowId = group.first,
-                    windowId != info.id,
-                    let element = StageWindowAccessibilityElement(windowId)
-                {
-                    return element
-                }
-            }
             if let windowElements = AccessibilityElement(info.pid).windowElements {
                 if let windowElement = (windowElements.first { $0.windowId == info.id }) {
                     return windowElement
@@ -394,12 +377,13 @@ extension AccessibilityElement {
         return nil
     }
 
-    static func getWindowElement(_ windowId: CGWindowID) -> AccessibilityElement? {
+    @MainActor public static func getWindowElement(_ windowId: CGWindowID) -> AccessibilityElement?
+    {
         guard let pid = WindowUtil.getWindowList(ids: [windowId]).first?.pid else { return nil }
         return AccessibilityElement(pid).windowElements?.first { $0.windowId == windowId }
     }
 
-    static func getAllWindowElements() -> [AccessibilityElement] {
+    @MainActor public static func getAllWindowElements() -> [AccessibilityElement] {
         return WindowUtil.getWindowList().uniqueMap { $0.pid }.compactMap {
             AccessibilityElement($0).windowElements
         }.flatMap { $0 }
@@ -415,28 +399,6 @@ extension AccessibilityElement: Equatable {
 extension AccessibilityElement: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(wrappedElement)
-    }
-}
-
-class StageWindowAccessibilityElement: AccessibilityElement {
-    private let _windowId: CGWindowID
-
-    init?(_ windowId: CGWindowID) {
-        guard let element = AccessibilityElement.getWindowElement(windowId) else { return nil }
-        _windowId = windowId
-        super.init(element.wrappedElement)
-    }
-
-    override var frame: CGRect {
-        let frame = super.frame
-        guard !frame.isNull, let windowId = windowId,
-            let info = WindowUtil.getWindowList(ids: [windowId]).first
-        else { return frame }
-        return .init(origin: info.frame.origin, size: frame.size)
-    }
-
-    override var windowId: CGWindowID? {
-        _windowId
     }
 }
 

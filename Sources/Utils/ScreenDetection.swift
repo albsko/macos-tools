@@ -1,8 +1,8 @@
-import Cocoa
+import AppKit
 
-class ScreenDetection {
-
-    func detectScreens(using frontmostWindowElement: AccessibilityElement?) -> UsableScreens? {
+public class ScreenDetection {
+    public func detectScreens(using frontmostWindowElement: AccessibilityElement?) -> UsableScreens?
+    {
         let screens = NSScreen.screens
         guard let firstScreen = screens.first else { return nil }
 
@@ -35,7 +35,7 @@ class ScreenDetection {
             numScreens: screens.count, screensOrdered: screensOrdered)
     }
 
-    func screenContaining(_ rect: CGRect, screens: [NSScreen]) -> NSScreen? {
+    public func screenContaining(_ rect: CGRect, screens: [NSScreen]) -> NSScreen? {
         var result: NSScreen? = NSScreen.main
         var largestPercentageOfRectWithinFrameOfScreen: CGFloat = 0.0
         for currentScreen in screens {
@@ -58,7 +58,7 @@ class ScreenDetection {
         return result
     }
 
-    func percentageOf(_ rect: CGRect, withinFrameOfScreen frameOfScreen: CGRect) -> CGFloat {
+    public func percentageOf(_ rect: CGRect, withinFrameOfScreen frameOfScreen: CGRect) -> CGFloat {
         let intersectionOfRectAndFrameOfScreen: CGRect = rect.intersection(frameOfScreen)
         var result: CGFloat = 0.0
         if !intersectionOfRectAndFrameOfScreen.isNull {
@@ -69,7 +69,9 @@ class ScreenDetection {
         return result
     }
 
-    func adjacent(toFrameOfScreen frameOfScreen: CGRect, screens: [NSScreen]) -> AdjacentScreens? {
+    public func adjacent(toFrameOfScreen frameOfScreen: CGRect, screens: [NSScreen])
+        -> AdjacentScreens?
+    {
         if screens.count == 2 {
             let otherScreen = screens.first(where: { screen in
                 let frame = NSRectToCGRect(screen.frame)
@@ -99,7 +101,7 @@ class ScreenDetection {
         return nil
     }
 
-    func order(screens: [NSScreen]) -> [NSScreen] {
+    public func order(screens: [NSScreen]) -> [NSScreen] {
         if Defaults.screensOrderedByX.userEnabled {
             let screensOrderedByX = screens.sorted(by: { screen1, screen2 in
                 return screen1.frame.origin.x < screen2.frame.origin.x
@@ -125,14 +127,14 @@ class ScreenDetection {
 
 }
 
-struct UsableScreens {
-    let currentScreen: NSScreen
-    let adjacentScreens: AdjacentScreens?
-    let frameOfCurrentScreen: CGRect
-    let numScreens: Int
-    let screensOrdered: [NSScreen]
+public struct UsableScreens {
+    public let currentScreen: NSScreen
+    public let adjacentScreens: AdjacentScreens?
+    public let frameOfCurrentScreen: CGRect
+    public let numScreens: Int
+    public let screensOrdered: [NSScreen]
 
-    init(
+    public init(
         currentScreen: NSScreen, adjacentScreens: AdjacentScreens? = nil, numScreens: Int,
         screensOrdered: [NSScreen]? = nil
     ) {
@@ -144,31 +146,17 @@ struct UsableScreens {
     }
 }
 
-struct AdjacentScreens {
-    let prev: NSScreen
-    let next: NSScreen
+public struct AdjacentScreens {
+    public let prev: NSScreen
+    public let next: NSScreen
 }
 
 extension NSScreen {
 
-    func adjustedVisibleFrame(_ ignoreTodo: Bool = false, _ ignoreStage: Bool = false) -> CGRect {
+    public func adjustedVisibleFrame(_ ignoreTodo: Bool = false, _ ignoreStage: Bool = false)
+        -> CGRect
+    {
         var newFrame = visibleFrame
-
-        if !ignoreStage && Defaults.stageSize.value > 0 {
-            if StageUtil.stageCapable && StageUtil.stageEnabled && StageUtil.stageStripShow
-                && StageUtil.isStageStripVisible(self)
-            {
-                let stageSize =
-                    Defaults.stageSize.value < 1
-                    ? newFrame.size.width * Defaults.stageSize.cgFloat
-                    : Defaults.stageSize.cgFloat
-
-                if StageUtil.stageStripPosition == .left {
-                    newFrame.origin.x += stageSize
-                }
-                newFrame.size.width -= stageSize
-            }
-        }
 
         if Defaults.screenEdgeGapsOnMainScreenOnly.enabled, self != NSScreen.screens.first {
             return newFrame
@@ -192,7 +180,7 @@ extension NSScreen {
         return newFrame
     }
 
-    static var portraitDisplayConnected: Bool {
+    public static var portraitDisplayConnected: Bool {
         NSScreen.screens.contains(where: { !$0.frame.isLandscape })
     }
 }

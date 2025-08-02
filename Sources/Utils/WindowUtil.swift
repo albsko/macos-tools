@@ -1,19 +1,14 @@
-//
-//  WindowUtil.swift
-//  Rectangle
-//
-//  Copyright © 2022 Ryan Hanson. All rights reserved.
-//
-
 import AppKit
 import Foundation
 
-class WindowUtil {
-    nonisolated(unsafe) private static var windowListCache = TimeoutCache<
+public class WindowUtil {
+    @MainActor private static let windowListCache = TimeoutCache<
         [CGWindowID]?, [WindowInfo]
     >(timeout: 100)
 
-    static func getWindowList(ids: [CGWindowID]? = nil, all: Bool = false) -> [WindowInfo] {
+    @MainActor public static func getWindowList(ids: [CGWindowID]? = nil, all: Bool = false)
+        -> [WindowInfo]
+    {
         if let infos = windowListCache[ids] {
             return infos
         }
@@ -59,7 +54,7 @@ class WindowUtil {
     }
 }
 
-struct WindowInfo {
+public struct WindowInfo {
     let id: CGWindowID
     let level: CGWindowLevel
     let frame: CGRect

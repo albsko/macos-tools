@@ -1,11 +1,3 @@
-//
-//  Defaults.swift
-//  Rectangle
-//
-//  Created by Ryan Hanson on 6/14/19.
-//  Copyright © 2019 Ryan Hanson. All rights reserved.
-//
-
 import AppKit
 
 class Defaults {
@@ -58,9 +50,9 @@ class Defaults {
     static let todoApplication = StringDefault(key: "todoApplication")
     static let todoSidebarWidth = FloatDefault(key: "todoSidebarWidth", defaultValue: 400)
     // static let todoSidebarWidthUnit = IntEnumDefault<TodoSidebarWidthUnit>(
-        // key: "todoSidebarWidthUnit", defaultValue: .pixels)
+    // key: "todoSidebarWidthUnit", defaultValue: .pixels)
     // static let todoSidebarSide = IntEnumDefault<TodoSidebarSide>(
-        // key: "todoSidebarSide", defaultValue: .right)
+    // key: "todoSidebarSide", defaultValue: .right)
     static let snapModifiers = IntDefault(key: "snapModifiers")
     static let attemptMatchOnNextPrevDisplay = OptionalBoolDefault(
         key: "attemptMatchOnNextPrevDisplay")

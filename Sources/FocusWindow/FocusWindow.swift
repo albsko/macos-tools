@@ -6,6 +6,7 @@
 
 import AppKit
 import ArgumentParser
+import Utils
 
 @main
 struct FocusWindow: AsyncParsableCommand {
@@ -33,6 +34,9 @@ func exec() async {
     }
 
     print(app.bundleURL ?? "none")
+
+    let accessibilityelement = AccessibilityElement.getFrontWindowElement()
+    print(accessibilityelement?.isWindow ?? "")
 }
 
 func findRunningApp(workspace: NSWorkspace, bundleIdentifier: String) -> NSRunningApplication? {
